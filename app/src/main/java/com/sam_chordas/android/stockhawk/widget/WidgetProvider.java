@@ -1,15 +1,13 @@
 package com.sam_chordas.android.stockhawk.widget;
 
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.widget.RemoteViews;
 
 import com.sam_chordas.android.stockhawk.R;
-
-import java.util.Random;
 
 /**
  * Created by Abhiroj on 9/5/2016.
@@ -18,23 +16,37 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        final int count = appWidgetIds.length;
 
-        for (int i = 0; i < count; i++) {
-            int widgetId = appWidgetIds[i];
-            String number = String.format("%03d", (new Random().nextInt(900) + 100));
-
-            RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.simple_layout);
-            remoteViews.setTextViewText(R.id.textView, number);
-
-            Intent intent = new Intent(context, WidgetProvider.class);
-            intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
-                    0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            remoteViews.setOnClickPendingIntent(R.id.textView, pendingIntent);
-            appWidgetManager.updateAppWidget(widgetId, remoteViews);
+        final int N = appWidgetIds.length;
+        for (int i = 0; i<N; ++i) {
+            RemoteViews remoteViews = updateWidgetListView(context,
+                    appWidgetIds[i]);
+            appWidgetManager.updateAppWidget(appWidgetIds[i],
+                    remoteViews);
         }
+        super.onUpdate(context, appWidgetManager, appWidgetIds);
+    }
 
+    private RemoteViews updateWidgetListView(Context context,
+                                             int appWidgetId) {
+
+        //which layout to show on widget
+        RemoteViews remoteViews = new RemoteViews(
+                context.getPackageName(), R.layout.widlist);
+
+        //RemoteViews Service needed to provide adapter for ListView
+        Intent svcIntent = new Intent(context, WidgetService.class);
+        //passing app widget id to that RemoteViews Service
+        svcIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        //setting a unique Uri to the intent
+        //don't know its purpose to me right now
+        svcIntent.setData(Uri.parse(
+                svcIntent.toUri(Intent.URI_INTENT_SCHEME)));
+        //setting adapter to listview of the widget
+        remoteViews.setRemoteAdapter(appWidgetId, R.id.Listwid,
+                svcIntent);
+        //setting an empty view in case of no data
+    //    remoteViews.setEmptyView(R.id.Listwid, R.id.empty_view_for_widget);
+        return remoteViews;
     }
 }

@@ -6,4 +6,5 @@ package com.sam_chordas.android.stockhawk.data;
 public class TempDataStore {
 
     public static String Symbol;
+
 }

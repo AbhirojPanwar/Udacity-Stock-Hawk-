@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -54,8 +53,9 @@ public class DataGraph extends AppCompatActivity {
         Intent i=getIntent();
         Bundle rec=i.getExtras();
         int position=rec.getInt("POS");
-        Toast.makeText(getBaseContext(),"POS ="+position,Toast.LENGTH_LONG).show();
+       // Toast.makeText(getBaseContext(),"POS ="+position,Toast.LENGTH_LONG).show();
          chart=(BarChart) findViewById(R.id.chart);
+        chart.setNoDataText("Be a Data analyst in 3..2..1...Go");
         String[] projection = new String[]{QuoteColumns._ID, QuoteColumns.SYMBOL};
         Uri uri= QuoteProvider.Quotes.CONTENT_URI;
         ContentResolver resolver=getContentResolver();
@@ -117,6 +117,7 @@ public class DataGraph extends AppCompatActivity {
                     dataSets.add(barDataSet);
                     BarData data=new BarData(xaxis,dataSets);
                     chart.setData(data);
+
                     chart.setDescription("My Chart");
                     chart.animateXY(2000,2000);
                     chart.invalidate();
