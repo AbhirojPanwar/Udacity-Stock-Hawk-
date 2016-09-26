@@ -13,6 +13,9 @@ import android.widget.RemoteViewsService;
 import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
+import com.sam_chordas.android.stockhawk.data.WidgetDataHolder;
+
+import java.util.ArrayList;
 
 /**
  * Created by Abhiroj on 9/23/2016.
@@ -20,6 +23,11 @@ import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
 
     Context context=null;
+    Uri uri= QuoteProvider.Quotes.CONTENT_URI;
+    String[] projection = new String[]{QuoteColumns._ID, QuoteColumns.SYMBOL,QuoteColumns.ISCURRENT};
+    ContentResolver contentResolver;
+    Cursor cursor;
+    ArrayList<WidgetDataHolder> widgetDataHolders;
     int appWidgetId;
 
     ListProvider(Context context, Intent intent)
@@ -27,12 +35,30 @@ public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
         this.context=context;
         appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                 AppWidgetManager.INVALID_APPWIDGET_ID);
-
+        contentResolver=context.getContentResolver();
+        cursor=contentResolver.query(uri,projection,null,null,null);
+       widgetDataHolders=new ArrayList<>();
     }
 
 
     @Override
     public void onCreate() {
+        if(cursor!=null) {
+            int i=0;
+            int total=cursor.getCount();
+         cursor.moveToFirst();
+            while(!cursor.isAfterLast()) {
+                try {
+                    cursor.moveToNext();
+                    WidgetDataHolder item=new WidgetDataHolder();
+                    item.symbol=cursor.getString(cursor.getColumnIndex(QuoteColumns.SYMBOL));
+                    item.current=cursor.getString(cursor.getColumnIndex(QuoteColumns.ISCURRENT));
+                    widgetDataHolders.add(i,item);
+                } catch (Exception e) {
+                    Log.e("DB Source Exception", "Google it!! It is ListProvider");
+                }
+            }
+        }
 
     }
 
@@ -48,25 +74,16 @@ public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public int getCount() {
-        return 0;
+        return widgetDataHolders.size();
     }
 
     @Override
     public RemoteViews getViewAt(int i) {
-        String[] projection = new String[]{QuoteColumns._ID, QuoteColumns.SYMBOL,QuoteColumns.ISCURRENT};
-        Uri uri= QuoteProvider.Quotes.CONTENT_URI;
-        ContentResolver contentResolver=context.getContentResolver();
-        Cursor cursor=contentResolver.query(uri,projection,null,null,null);
-        try {
-            cursor.moveToPosition(i);
-        }
-        catch (Exception e)
-        {
-            Log.e("DB Source Excetion","Google it!! It is ListProvider");
-        }
+
+        WidgetDataHolder holder=widgetDataHolders.get(i);
         RemoteViews remoteViews=new RemoteViews(context.getPackageName(), R.layout.simple_layout);
-        remoteViews.setTextViewText(R.id.stock_symbol,cursor.getString(cursor.getColumnIndex(QuoteColumns.SYMBOL)));
-        remoteViews.setTextViewText(R.id.bid_price,cursor.getString(cursor.getColumnIndex(QuoteColumns.ISCURRENT)));
+        remoteViews.setTextViewText(R.id.stock_symbol,holder.symbol);
+        remoteViews.setTextViewText(R.id.bid_price,holder.current);
 
         cursor.close();
 
@@ -80,12 +97,12 @@ public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public int getViewTypeCount() {
-        return 0;
+        return 1;
     }
 
     @Override
     public long getItemId(int i) {
-        return 0;
+        return i;
     }
 
     @Override
