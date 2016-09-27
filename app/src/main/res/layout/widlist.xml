@@ -6,6 +6,7 @@
     <ListView
         android:id="@+id/Listwid"
         android:layout_width="match_parent"
+        android:contentDescription="Widget dispaying current stock price over time, Scroll to check out more"
         android:layout_height="match_parent"></ListView>
 
 

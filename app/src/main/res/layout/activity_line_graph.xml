@@ -5,6 +5,7 @@
 
     <com.db.chart.view.LineChartView
         xmlns:chart="http://schemas.android.com/apk/res-auto"
+        android:contentDescription="Bar Graph Showing Stock Price Change since 3 months"
         android:id="@+id/linechart"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

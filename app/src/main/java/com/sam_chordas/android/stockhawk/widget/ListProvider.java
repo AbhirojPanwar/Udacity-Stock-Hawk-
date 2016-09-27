@@ -24,7 +24,7 @@ public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
 
     Context context=null;
     Uri uri= QuoteProvider.Quotes.CONTENT_URI;
-    String[] projection = new String[]{QuoteColumns._ID, QuoteColumns.SYMBOL,QuoteColumns.ISCURRENT};
+    String[] projection = new String[]{QuoteColumns._ID, QuoteColumns.SYMBOL,QuoteColumns.CHANGE};
     ContentResolver contentResolver;
     Cursor cursor;
     ArrayList<WidgetDataHolder> widgetDataHolders;
@@ -52,8 +52,8 @@ public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
                     cursor.moveToNext();
                     WidgetDataHolder item=new WidgetDataHolder();
                     item.symbol=cursor.getString(cursor.getColumnIndex(QuoteColumns.SYMBOL));
-                    item.current=cursor.getString(cursor.getColumnIndex(QuoteColumns.ISCURRENT));
-                    widgetDataHolders.add(i,item);
+                    item.current=cursor.getString(cursor.getColumnIndex(QuoteColumns.BIDPRICE));
+                    widgetDataHolders.add(i++,item);
                 } catch (Exception e) {
                     Log.e("DB Source Exception", "Google it!! It is ListProvider");
                 }
